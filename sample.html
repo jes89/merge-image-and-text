@@ -1,0 +1,302 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+	<meta charset="utf-8" />
+    <style>
+        td, th {
+            border: solid 1px black;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <th rowspan="4">제목 영역</th>
+            <td>
+                제목 : <input type="text" id="imgTitle" value="제목이당" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                글꼴 : <select id="titleFontFamily">
+                    <option value="dotum">돋움</option>
+                    <option value="gulim">굴림</option>
+                    <option value="고딕">고딕</option>
+                    <option value="궁서체">궁서체</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                사이즈 :  <input type="number" id="titleFontSize" value="30" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                정렬 : <input type="radio" name="titlePos" id="titleLeft" value="left" />
+                <label for="titleLeft">왼쪽</label>
+                <input type="radio" name="titlePos" id="titleCenter" value="center" checked="checked" />
+                <label for="titleCenter">중앙</label>
+                <input type="radio" name="titlePos" id="titleRight" value="right" />
+                <label for="titleRight">오른쪽</label>
+                <br />에서 <input type="number" id="titleX" value="0" />px :  <input type="number" id="titleY" value="0" />px
+            </td>
+        </tr>
+        <tr>
+            <th rowspan="4">내용 영역</th>
+            <td>
+                내용 : <textarea id="imgContents">핵귀찮당</textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                글꼴 : <select id="contentsFontFamily">
+                    <option value="dotum">돋움</option>
+                    <option value="gulim">굴림</option>
+                    <option value="고딕">고딕</option>
+                    <option value="궁서체">궁서체</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                사이즈 :  <input type="number" id="contentsFontSize" value="15" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                정렬 : <input type="radio" name="contentsPos" id="contentsLeft" value="left" checked="checked" />
+                <label for="contentsLeft">왼쪽</label>
+                <input type="radio" name="contentsPos" id="contentsCenter" value="center" />
+                <label for="contentsCenter">중앙</label>
+                <input type="radio" name="contentsPos" id="contentsRight" value="right" />
+                <label for="contentsRight">오른쪽</label>
+                <br />에서 <input type="number" id="contentsX" value="0" />px :  <input type="number" id="contentsY" value="0" />px
+            </td>
+        </tr>
+        <tr>
+            <th>배경 이미지 선택</th>
+            <td><input type='file' id="fileUploader" accept="images/*;" /></td>
+        </tr>
+        <tr>
+            <th>미리보기</th>
+            <td>
+                <img id="prevImg" style=" width 300px; height 400px;" />
+                <br />
+                <input type="button" onclick="showPrev()" ; value="미리보기" />
+            </td>
+        </tr>
+        <tr>
+            <th>저장</th>
+            <td>
+                <input type="button" onclick="imageWithTextCombiner.saveFile();" value="저장" />
+            </td>
+        </tr>
+    </table>
+
+
+
+
+    <script>
+        var ImageWithTextCombiner = (function () {
+
+            var globalSettings = {
+                title: {},
+                contents: {},
+                img: null,
+            };
+
+            var canvasEl = document.createElement("canvas");
+            var ctx = canvasEl.getContext("2d");
+            var ImageWithTextCombiner = function () { };
+            var originImg = document.createElement("img");
+
+            var readFile = function () {
+
+                var reader = new FileReader();
+
+                reader.readAsDataURL(globalSettings.img);
+
+                reader.onload = function (e) {
+                    renderPrevImg.call(this, e.target.result);
+                }
+            }
+
+            var renderPrevImg = function (readFileResult) {
+
+                originImg.setAttribute('src', readFileResult);
+
+                originImg.onload = function () {
+                    canvasEl.width = originImg.naturalWidth;
+                    canvasEl.height = originImg.naturalHeight;
+
+
+                    ctx.drawImage(originImg, 0, 0, canvasEl.width, canvasEl.height);
+
+                    renderTitle.call(this);
+                    renderContents.call(this);
+
+                    globalSettings.prevImg.src = canvasEl.toDataURL("JPEG");
+
+                }
+            }
+
+            var renderTitle = function () {
+
+                const DEFAULT_Y = 100;
+
+                var title = globalSettings.title;
+                var pos = title.pos;
+                var x = 0;
+                var y = canvasEl.height * 0.1 > DEFAULT_Y ? DEFAULT_Y : canvasEl.height * 0.1;
+
+                switch (pos) {
+                    case "left":
+                        x = canvasEl.width * 0.1;
+                        break;
+                    case "center":
+                        x = canvasEl.width * 0.5;
+                        break;
+                    case "right":
+                        x = canvasEl.width - (canvasEl.width * 0.1);
+                        break;
+                }
+
+                x = x + title.posLeft;
+                y = y + title.posTop;
+
+                ctx.font = `${title.fontSize}px ${title.fontFamily}`;
+                ctx.textAlign = pos;
+                ctx.fillText(title.text, x, y);
+            }
+
+            var renderContents = function () {
+
+                const DEFAULT_Y = 200;
+                var contents = globalSettings.contents;
+                var pos = contents.pos;
+                var x = 0;
+                var y = canvasEl.height * 0.1 > DEFAULT_Y ? DEFAULT_Y : canvasEl.height * 0.1;
+
+                switch (pos) {
+                    case "left":
+                        x = canvasEl.width * 0.1;
+                        break;
+                    case "center":
+                        x = canvasEl.width * 0.5;
+                        break;
+                    case "right":
+                        x = canvasEl.width - (canvasEl.width * 0.1);
+                        break;
+                }
+
+                x = x + contents.posLeft;
+                y = y + contents.posTop;
+
+                ctx.font = `${contents.fontSize}px ${contents.fontFamily}`;
+                ctx.textAlign = pos;
+                ctx.fillText(contents.text, x, y);
+            }
+
+            ImageWithTextCombiner.prototype.render = function (title, contents, prevImg, img) {
+
+                globalSettings.title.text = title.text;
+                globalSettings.title.fontFamily = title.fontFamily;
+                globalSettings.title.fontSize = title.fontSize || 20;
+                globalSettings.title.pos = title.pos || "center";
+                globalSettings.title.posLeft = title.posLeft || 0;
+                globalSettings.title.posTop = title.posTop || 0;
+
+                globalSettings.contents.text = contents.text;
+                globalSettings.contents.fontFamily = contents.fontFamily;
+                globalSettings.contents.fontSize = title.contents || 10;
+                globalSettings.contents.pos = contents.pos || "left";
+                globalSettings.contents.posLeft = contents.posLeft || 0;
+                globalSettings.contents.posTop = contents.posTop || 0;
+
+                globalSettings.img = img;
+
+                globalSettings.prevImg = prevImg;
+
+                readFile.call(this);
+            }
+
+            ImageWithTextCombiner.prototype.saveFile = function () {
+
+                var fileName = +new Date() + ".jpg";
+                var downLoadlink = document.createElement('a');
+                downLoadlink.download = fileName;
+                downLoadlink.href = canvasEl.toDataURL("JPEG");
+                downLoadlink.click();
+            }
+
+            return ImageWithTextCombiner;
+
+        })();
+
+
+    </script>
+
+    <script>
+
+            var imageWithTextCombiner = new ImageWithTextCombiner();
+
+            function showPrev() {
+                var title = {};
+                var contents = {};
+                var imgFile = document.getElementById("fileUploader").files[0];
+                var prevImg = document.getElementById("prevImg");
+                var imgTitle = document.getElementById("imgTitle").value;
+                var titleFontFamily = document.getElementById("titleFontFamily").value;
+                var titleFontSize = document.getElementById("titleFontSize").value;
+                var titleX = document.getElementById("titleX").value;
+                var titleY = document.getElementById("titleY").value;
+                var titlePos = null;
+
+                var imgContents = document.getElementById("imgContents").value;
+                var contentsFontFamily = document.getElementById("contentsFontFamily").value;
+                var contentsFontSize = document.getElementById("contentsFontSize").value;
+                var contentsX = document.getElementById("contentsX").value;
+                var contentsY = document.getElementById("contentsY").value;
+                var contentsPos = null;
+
+                document.getElementsByName("titlePos").forEach(
+                    function (currentEl) {
+                        if (currentEl.checked) {
+                            titlePos = currentEl.value;
+                            return;
+                        }
+                    }
+                );
+
+                document.getElementsByName("contentsPos").forEach(
+                   function (currentEl) {
+                       if (currentEl.checked) {
+                           contentsPos = currentEl.value;
+                           return;
+                       }
+                   }
+               );
+
+                title.text = imgTitle
+                title.fontFamily = titleFontFamily;
+                title.fontSize = titleFontSize;
+                title.pos = titlePos;
+                title.posLeft = titleX * 1;
+                title.posTop = titleY * 1;
+
+                contents.text = imgContents;
+                contents.fontFamily = contentsFontFamily;
+                contents.fontSize = contentsFontSize;
+                contents.pos = contentsPos;
+                contents.posLeft = contentsX * 1;
+                contents.posTop = contentsY * 1;
+
+
+                imageWithTextCombiner.render(title, contents, prevImg, imgFile);
+            }
+
+    </script>
+</body>
+</html>
