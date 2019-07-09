@@ -131,7 +131,6 @@
                     canvasEl.width = originImg.naturalWidth;
                     canvasEl.height = originImg.naturalHeight;
 
-
                     ctx.drawImage(originImg, 0, 0, canvasEl.width, canvasEl.height);
 
                     renderTitle.call(this);
@@ -144,12 +143,10 @@
 
             var renderTitle = function () {
 
-                const DEFAULT_Y = 100;
-
                 var title = globalSettings.title;
                 var pos = title.pos;
                 var x = 0;
-                var y = canvasEl.height * 0.1 > DEFAULT_Y ? DEFAULT_Y : canvasEl.height * 0.1;
+                var y = canvasEl.height * 0.1;
 
                 switch (pos) {
                     case "left":
@@ -173,11 +170,10 @@
 
             var renderContents = function () {
 
-                const DEFAULT_Y = 200;
                 var contents = globalSettings.contents;
                 var pos = contents.pos;
                 var x = 0;
-                var y = canvasEl.height * 0.1 > DEFAULT_Y ? DEFAULT_Y : canvasEl.height * 0.1;
+                var y = canvasEl.height * 0.2;
 
                 switch (pos) {
                     case "left":
@@ -210,7 +206,7 @@
 
                 globalSettings.contents.text = contents.text;
                 globalSettings.contents.fontFamily = contents.fontFamily;
-                globalSettings.contents.fontSize = title.contents || 10;
+                globalSettings.contents.fontSize = contents.fontSize || 10;
                 globalSettings.contents.pos = contents.pos || "left";
                 globalSettings.contents.posLeft = contents.posLeft || 0;
                 globalSettings.contents.posTop = contents.posTop || 0;
